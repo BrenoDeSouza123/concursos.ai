@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  nome      String
+  email     String     @unique
+  senha     String?
+  plano     String     @default("iniciante")
+  streak    Int        @default(0)
+  simulados Simulado[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Simulado {
+  id          String    @id @default(cuid())
+  user_id     String
+  banca       String
+  disciplinas String[]
+  score       Int?
+  questoes    Questao[]
+  user        User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Questao {
+  id            String   @id @default(cuid())
+  simulado_id   String
+  disciplina    String
+  enunciado     String
+  alternativas  Json
+  gabarito      String
+  explicacao_ia String?
+  simulado      Simulado @relation(fields: [simulado_id], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
